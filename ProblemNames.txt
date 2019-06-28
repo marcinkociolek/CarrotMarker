@@ -1,0 +1,15 @@
+LargeBlackPatches = false;
+SmallBlackPatches = false;
+BlackEnd = false;
+RotEnd = false;
+RotOutEnd = false;
+WitheFungus = false;
+GreenHead = false;
+CrackTravsverse = false;
+CrackLongitudial = false;
+Curvature = false;
+Split = false;
+OtherShapeDeformation = false;
+BiteInsect = false;
+BiteAnimal = false;
+Soilure = false;

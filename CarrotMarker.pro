@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    ../../ProjectsLib/LibMarcin/RegionU16Lib.cpp \
         main.cpp \
         mainwindow.cpp\
         ../../ProjectsLib/LibMarcin/NormalizationLib.cpp \
@@ -34,6 +35,7 @@ SOURCES += \
     carrotdefect.cpp
 
 HEADERS += \
+    ../../ProjectsLib/LibMarcin/RegionU16Lib.h \
         mainwindow.h \
         ../../ProjectsLib/LibMarcin/NormalizationLib.h \
         ../../ProjectsLib/LibMarcin/DispLib.h \

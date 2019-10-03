@@ -18,6 +18,7 @@
 #include "NormalizationLib.h"
 #include "DispLib.h"
 #include "histograms.h"
+#include "RegionU16Lib.h"
 
 #include "mazdaroi.h"
 #include "mazdaroiio.h"
@@ -139,6 +140,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     FileName = "";
     FileNameTxt = "";
+
+    ui->comboBoxOutputMode->addItem("Gray");
+    ui->comboBoxOutputMode->addItem("B");
+    ui->comboBoxOutputMode->addItem("G");
+    ui->comboBoxOutputMode->addItem("R");
+    ui->comboBoxOutputMode->setCurrentIndex(0);
+
 }
 
 MainWindow::~MainWindow()
@@ -189,6 +197,11 @@ void MainWindow::ReadImage()
         flags = CV_LOAD_IMAGE_ANYDEPTH;
     else
         flags = IMREAD_COLOR;
+
+    ImIn.release();
+    ImOut.release();
+    Mask.release();
+
     ImIn = imread(FileName, flags);
     if(ImIn.empty())
     {
@@ -205,10 +218,7 @@ void MainWindow::ReadImage()
     if(ui->checkBoxShowMatInfo->checkState())
         ui->textEditOut->append(QString::fromStdString(MatPropetiesAsText(ImIn)));
 
-    if(ui->checkBoxShowInput->checkState())
-        ShowsScaledImage(ImIn, "Input Image", displayScale);
-
-
+    ProcessImage();
 }
 //------------------------------------------------------------------------------------------------------------------------------
 void MainWindow::ShowsScaledImage(Mat Im, string ImWindowName, double dispScale)
@@ -232,6 +242,18 @@ void MainWindow::ShowsScaledImage(Mat Im, string ImWindowName, double dispScale)
     imshow(ImWindowName, ImToShow);
 
 }
+//------------------------------------------------------------------------------------------------------------------------------
+void MainWindow::ShowImages()
+{
+    if(ui->checkBoxShowInput->checkState())
+        ShowsScaledImage(ImIn, "Input Image", displayScale);
+    if(ui->checkBoxShowOutput->checkState())
+        ShowsScaledImage(ImOut, "Output Image", displayScale);
+    if(ui->checkBoxShowOutput->checkState())
+        ShowsScaledImage(ShowTransparentRegionOnImage(Mask, ImIn, ui->spinBoxTransparency->value()), "Output Image", displayScale);
+}
+
+//---------------------------------------------------------------------------------------------------
 void MainWindow::ReadDefects()
 {
     ui->checkBoxLargeBlackPatches->setChecked(defectList.GetDefect(0));
@@ -268,6 +290,60 @@ void MainWindow::SaveDefects()
     defectList.defect[12] =  ui->checkBoxBiteInsect->checkState();
     defectList.defect[13] =  ui->checkBoxBiteAnimal->checkState();
     defectList.defect[14] =  ui->checkBoxSoilure->checkState();
+}
+//---------------------------------------------------------------------------------------------------
+void MainWindow::ProcessImage()
+{
+    if(ImIn.empty())
+    {
+
+        return;
+    }
+    Mat ImGrayTemp;
+    if(ui->checkBoxLoadAnydepth->checkState())
+    {
+        ImGrayTemp = ImIn;
+    }
+    else
+    {
+        switch(ui->comboBoxOutputMode->currentIndex())
+        {
+            case 1:
+            {
+                Mat Planes[3];
+                split(ImIn,Planes);
+                ImGrayTemp = Planes[0];
+            }
+            break;
+
+            case 2:
+            {
+                Mat Planes[3];
+                split(ImIn,Planes);
+                ImGrayTemp = Planes[1];
+            }
+            break;
+            case 3:
+            {
+                Mat Planes[3];
+                split(ImIn,Planes);
+                ImGrayTemp = Planes[2];
+            }
+        break;
+        default:
+            cvtColor(ImIn, ImGrayTemp, CV_BGR2GRAY);
+        break;
+        }
+    }
+
+    ImGrayTemp.convertTo(ImGray,CV_16U);
+
+
+
+    Mask = Threshold16(ImGray, ui->spinBoxThreshold->value());
+
+    ShowImages();
+
 }
 //------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------
@@ -352,4 +428,19 @@ void MainWindow::on_spinBoxScalePower_valueChanged(int arg1)
 void MainWindow::on_checkBoxImRotate_toggled(bool checked)
 {
     ReadImage();
+}
+
+void MainWindow::on_spinBoxThreshold_valueChanged(int arg1)
+{
+    ProcessImage();
+}
+
+void MainWindow::on_spinBoxTransparency_valueChanged(int arg1)
+{
+    ShowImages();
+}
+
+void MainWindow::on_comboBoxOutputMode_currentIndexChanged(int index)
+{
+    ProcessImage();
 }

@@ -126,8 +126,33 @@ bool GetTiffProperties(string FileName, float &xRes, float &yRes)
     }
 }
 //------------------------------------------------------------------------------------------------------------------------------
+cv::Mat SegmetBlue(cv::Mat ImIn, unsigned char threshold)
+{
+    if(ImIn.empty())
+        return Mat::zeros(1,1,CV_16U);
+    int maxX = ImIn.cols;
+    int maxY = ImIn.rows;
+    int maxXY = maxX * maxY;
 
+    unsigned char *wImInB = (unsigned char*)ImIn.data;
+    unsigned char *wImInG = wImInB + 1;
+    unsigned char *wImInR = wImInB + 2;
 
+    Mat Mask = Mat::zeros(maxY, maxX, CV_16U);
+    unsigned short *wMask = (unsigned short*)Mask.data;
+
+    for(int i = 0; i < maxXY; i++)
+    {
+        if(*wImInB < threshold || *wImInB < *wImInG || *wImInB < *wImInR)
+            *wMask = 1;
+        wImInG+= 3;
+        wImInB+= 3;
+        wImInR+= 3;
+
+        wMask++;
+    }
+    return Mask;
+}
 //------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------
 //          constructor Destructor
@@ -145,7 +170,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->comboBoxOutputMode->addItem("B");
     ui->comboBoxOutputMode->addItem("G");
     ui->comboBoxOutputMode->addItem("R");
-    ui->comboBoxOutputMode->setCurrentIndex(0);
+    ui->comboBoxOutputMode->setCurrentIndex(1);
 
 }
 
@@ -203,6 +228,15 @@ void MainWindow::ReadImage()
     Mask.release();
 
     ImIn = imread(FileName, flags);
+    if(ImIn.cols > ImIn.rows)
+        rotate(ImIn, ImIn, cv::ROTATE_90_CLOCKWISE);
+
+    int croppX = 0;
+    int croppWidth = ImIn.cols-1;
+    int croppY = ui->spinBoxCropY->value();
+    int croppHeight = ImIn.rows - croppY * 2;
+    ImIn(Rect(croppX,croppY,croppWidth,croppHeight)).copyTo(ImIn);
+
     if(ImIn.empty())
     {
         ui->textEditOut->append("improper file");
@@ -225,7 +259,7 @@ void MainWindow::ShowsScaledImage(Mat Im, string ImWindowName, double dispScale)
 {
     if(Im.empty())
     {
-        ui->textEditOut->append("Empty Image to show");
+        ui->textEditOut->append(QString::fromStdString(string("Empty Image to show") + ImWindowName));
         return;
     }
 
@@ -247,8 +281,8 @@ void MainWindow::ShowImages()
 {
     if(ui->checkBoxShowInput->checkState())
         ShowsScaledImage(ImIn, "Input Image", displayScale);
-    if(ui->checkBoxShowOutput->checkState())
-        ShowsScaledImage(ImOut, "Output Image", displayScale);
+    if(ui->checkBoxShowMask->checkState())
+        ShowsScaledImage(ShowRegion(Mask), "Mask", displayScale);
     if(ui->checkBoxShowOutput->checkState())
         ShowsScaledImage(ShowTransparentRegionOnImage(Mask, ImIn, ui->spinBoxTransparency->value()), "Output Image", displayScale);
 }
@@ -296,10 +330,10 @@ void MainWindow::ProcessImage()
 {
     if(ImIn.empty())
     {
-
         return;
     }
-    Mat ImGrayTemp;
+/*
+    Mat ImGrayTemp, ImB, ImG, ImR;
     if(ui->checkBoxLoadAnydepth->checkState())
     {
         ImGrayTemp = ImIn;
@@ -337,10 +371,9 @@ void MainWindow::ProcessImage()
     }
 
     ImGrayTemp.convertTo(ImGray,CV_16U);
-
-
-
     Mask = Threshold16(ImGray, ui->spinBoxThreshold->value());
+*/
+    Mask = SegmetBlue(ImIn, ui->spinBoxThreshold->value());
 
     ShowImages();
 

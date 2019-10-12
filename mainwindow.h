@@ -75,6 +75,12 @@ private slots:
 
     void on_comboBoxOutputMode_currentIndexChanged(int index);
 
+    void on_pushButtonOpenOutFolder_clicked();
+
+    void on_pushButtonCreateMazdaFiles_clicked();
+
+
+
 private:
     Ui::MainWindow *ui;
 };

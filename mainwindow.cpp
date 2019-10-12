@@ -25,6 +25,9 @@
 
 #include <tiffio.h>
 
+#include "mazdaroi.h"
+#include "mazdaroiio.h"
+typedef MazdaRoi<unsigned int, 2> MR2DType;
 
 using namespace boost;
 using namespace std;
@@ -476,4 +479,110 @@ void MainWindow::on_spinBoxTransparency_valueChanged(int arg1)
 void MainWindow::on_comboBoxOutputMode_currentIndexChanged(int index)
 {
     ProcessImage();
+}
+
+void MainWindow::on_pushButtonOpenOutFolder_clicked()
+{
+    QFileDialog dialog(this, "Open Output Folder");
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setDirectory(QString::fromStdString(ImageFolder.string()));
+
+    if(dialog.exec())
+    {
+        OutFolder = dialog.directory().path().toStdWString();
+    }
+    else
+        return;
+}
+
+void MainWindow::on_pushButtonCreateMazdaFiles_clicked()
+{
+    int filesCount = ui->listWidgetImageFiles ->count();
+    int firstFile = 0;
+
+    int defectNr = 0;
+    int defectCount = 0;
+
+    for(int fileNr = firstFile; fileNr< filesCount; fileNr++)
+    {
+        path fileToOpen = ImageFolder;
+        fileToOpen.append(ui->listWidgetImageFiles->item(fileNr)->text().toStdString());
+        FileName = fileToOpen.string();
+        //path LocalFileToOpen = ImageFolder;
+        //FileName = ui->listWidgetImageFiles->item(fileNr)->text().toStdString();
+        //LocalFileToOpen.append(FileName);
+
+        //ImIn = imread(LocalFileToOpen.string().c_str(),CV_LOAD_IMAGE_ANYDEPTH);
+
+        ReadImage();
+        path fileToOpenTxt = ImageFolder;
+        fileToOpenTxt.append(fileToOpen.stem().string() +".txt");
+        FileNameTxt = fileToOpenTxt.string();
+        defectList.Load(FileNameTxt);
+        string FileToSaveBase = fileToOpen.stem().string();
+
+        path FileToSaveIm = OutFolder;
+        FileToSaveIm.append(FileToSaveBase + ".tif");
+        path FileToSaveMask = OutFolder;
+        FileToSaveMask.append(FileToSaveBase + ".roi");
+
+        imwrite(FileToSaveIm.string(), ImIn);
+
+        unsigned short *wMask;
+        vector <MR2DType*> ROIVect;
+
+        int begin[MR2DType::Dimensions];
+        int end[MR2DType::Dimensions];
+
+        //Mask 1
+        begin[0] = 0;
+        begin[1] = 0;
+        end[0] = Mask.cols-1;
+        end[1] = Mask.rows-1;
+
+        MR2DType *ROI;
+        ROI = new MR2DType(begin, end);
+
+        MazdaRoiIterator<MR2DType> iterator(ROI);
+        wMask = (unsigned short*)Mask.data;
+        while(! iterator.IsBehind())
+        {
+            if (*wMask)
+                iterator.SetPixel();
+            ++iterator;
+            wMask++;
+        }
+
+
+        if(defectList.GetDefect(defectNr))
+        {
+            ROI->SetName(DefectNames[defectNr]);
+            ROI->SetColor(0xff0000);
+            defectCount++;
+        }
+        else
+        {
+            ROI->SetName("NoDefect");
+            ROI->SetColor(0x00ff00);
+        }
+
+        ROIVect.push_back(ROI);
+
+        MazdaRoiIO<MR2DType>::Write(FileToSaveMask.string(), &ROIVect, NULL);
+
+        while(ROIVect.size() > 0)
+        {
+             delete ROIVect.back();
+             ROIVect.pop_back();
+        }
+
+
+
+        FileName = fileToOpen.string();
+
+
+        waitKey(20);
+
+    }
+    ui->textEditOut->append("defect count " + QString::fromStdString(to_string( defectCount)));
 }

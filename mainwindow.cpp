@@ -490,6 +490,7 @@ void MainWindow::on_pushButtonOpenOutFolder_clicked()
     if(dialog.exec())
     {
         OutFolder = dialog.directory().path().toStdWString();
+        ui->lineEditOutFolder->setText(QString::fromStdString(OutFolder.string()));
     }
     else
         return;
@@ -497,6 +498,8 @@ void MainWindow::on_pushButtonOpenOutFolder_clicked()
 
 void MainWindow::on_pushButtonCreateMazdaFiles_clicked()
 {
+    string BatString = "";
+    string MaZdaPath = "D:/PortableSoft/qmazda1902_win64/" + string("MzGenerator.exe");
     int filesCount = ui->listWidgetImageFiles ->count();
     int firstFile = 0;
 

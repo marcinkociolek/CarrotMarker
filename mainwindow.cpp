@@ -175,6 +175,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->comboBoxOutputMode->addItem("R");
     ui->comboBoxOutputMode->setCurrentIndex(1);
 
+    MazdaFolder = "E:/PortableSoft/qmazda1902_win64";
+    ui->lineEditMaZdaFolder->setText(QString::fromStdString(MazdaFolder.string()));
+    MazdaOptionsFile = "I:/Marchew/MaZdaOpions01.txt";
+    ui->lineEditOptionsFile->setText(QString::fromStdString(MazdaOptionsFile.string()));
 }
 
 MainWindow::~MainWindow()
@@ -499,12 +503,18 @@ void MainWindow::on_pushButtonOpenOutFolder_clicked()
 void MainWindow::on_pushButtonCreateMazdaFiles_clicked()
 {
     string BatString = "";
-    string MaZdaPath = "D:/PortableSoft/qmazda1902_win64/" + string("MzGenerator.exe");
+    string MaZdaPath = MazdaFolder.string() + "/MzGenerator.exe";
+    string MazdaOptionsFileName = MazdaOptionsFile.string();
+
+
     int filesCount = ui->listWidgetImageFiles ->count();
     int firstFile = 0;
 
-    int defectNr = 0;
+    int defectNr = ui->spinBoxDefectNr->value();
     int defectCount = 0;
+
+    string OutFileName = "";
+    OutFileName += DefectNamesShort[defectNr] + path(MazdaOptionsFileName).stem().string();
 
     for(int fileNr = firstFile; fileNr< filesCount; fileNr++)
     {
@@ -559,7 +569,7 @@ void MainWindow::on_pushButtonCreateMazdaFiles_clicked()
 
         if(defectList.GetDefect(defectNr))
         {
-            ROI->SetName(DefectNames[defectNr]);
+            ROI->SetName(DefectNamesShort[defectNr]);
             ROI->SetColor(0xff0000);
             defectCount++;
         }
@@ -581,11 +591,85 @@ void MainWindow::on_pushButtonCreateMazdaFiles_clicked()
 
 
 
-        FileName = fileToOpen.string();
+        //FileName = fileToOpen.string();
+        BatString += MaZdaPath;
+        BatString += " -m roi -i ";
+        BatString += FileToSaveIm.stem().string() + ".tif";
+        BatString += " -r ";
+        BatString += FileToSaveMask.stem().string() + ".roi";
+
+        if(fileNr == firstFile)
+        {
+            BatString += "    -o ";
+            BatString += OutFileName + ".csv";
+            BatString += " -f ";
+            BatString += MazdaOptionsFileName;
+        }
+        else
+        {
+            BatString += " -a -o ";
+            BatString += OutFileName + ".csv";
+        }
+        BatString += "\n";
 
 
         waitKey(20);
 
     }
+    string BatFileName = OutFolder.string() + "/" + OutFileName + ".bat";
+    std::ofstream out ( BatFileName);
+    out << BatString;
+    out.close();
+
     ui->textEditOut->append("defect count " + QString::fromStdString(to_string( defectCount)));
+}
+
+void MainWindow::on_pushButtonSelectMazdaFolder_clicked()
+{
+    QFileDialog dialog(this, "Open MaZda Folder");
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setDirectory(QString::fromStdString(ImageFolder.string()));
+
+    if(dialog.exec())
+    {
+        MazdaFolder = dialog.directory().path().toStdWString();
+    }
+    else
+        return;
+    if (!exists(MazdaFolder))
+    {
+        ui->textEditOut->append(QString::fromStdString(" Image folder : " + MazdaFolder.string()+ " not exists "));
+        MazdaFolder = "C:/";
+    }
+    if (!is_directory(MazdaFolder))
+    {
+        ui->textEditOut->append(QString::fromStdString(" Image folder : " + MazdaFolder.string()+ " This is not a directory path "));
+        MazdaFolder = "C:/";
+    }
+    ui->lineEditMaZdaFolder->setText(QString::fromStdString(MazdaFolder.string()));
+}
+
+void MainWindow::on_pushButtonSelectMazdaOptions_clicked()
+{
+    QFileDialog dialog(this, "Open MaZda Options File");
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setDirectory(QString::fromStdString(ImageFolder.string()));
+
+    if(dialog.exec())
+    {
+        MazdaOptionsFile = dialog.directory().path().toStdWString();
+    }
+    else
+        return;
+    if (!exists(MazdaOptionsFile))
+    {
+        ui->textEditOut->append(QString::fromStdString(" file : " + MazdaOptionsFile.string()+ " not exists "));
+        MazdaOptionsFile = "c:/temp.txt";
+    }
+    ui->lineEditOptionsFile->setText(QString::fromStdString(MazdaOptionsFile.string()));
+}
+
+void MainWindow::on_spinBoxDefectNr_valueChanged(int arg1)
+{
+    ui->lineEditDefectName->setText(QString::fromStdString(DefectNamesShort[arg1]));
 }

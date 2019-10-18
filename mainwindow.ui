@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>993</width>
-    <height>674</height>
+    <height>692</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -752,10 +752,10 @@
    <widget class="QFrame" name="frame_3">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>490</y>
-      <width>401</width>
-      <height>111</height>
+      <x>0</x>
+      <y>450</y>
+      <width>511</width>
+      <height>141</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -845,13 +845,95 @@
      <property name="geometry">
       <rect>
        <x>150</x>
-       <y>60</y>
+       <y>40</y>
        <width>101</width>
        <height>22</height>
       </rect>
      </property>
      <property name="text">
       <string>CreateMazdaFiles</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonSelectMazdaFolder">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>111</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Select MaZda Folder</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonSelectMazdaOptions">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>111</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Select Mazda options</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditMaZdaFolder">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>90</y>
+       <width>371</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditOptionsFile">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>110</y>
+       <width>371</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEditDefectName">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>10</y>
+       <width>113</width>
+       <height>21</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="spinBoxDefectNr">
+     <property name="geometry">
+      <rect>
+       <x>330</x>
+       <y>10</y>
+       <width>43</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="maximum">
+      <number>14</number>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBoxCreateImages">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>40</y>
+       <width>72</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Create images</string>
      </property>
     </widget>
    </widget>

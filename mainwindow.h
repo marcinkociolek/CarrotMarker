@@ -23,6 +23,8 @@ public:
 
     boost::filesystem::path ImageFolder;
     boost::filesystem::path OutFolder;
+    boost::filesystem::path MazdaFolder;
+    boost::filesystem::path MazdaOptionsFile;
 
     std::string FileName;
     std::string FileNameTxt;
@@ -80,6 +82,12 @@ private slots:
     void on_pushButtonCreateMazdaFiles_clicked();
 
 
+
+    void on_pushButtonSelectMazdaFolder_clicked();
+
+    void on_pushButtonSelectMazdaOptions_clicked();
+
+    void on_spinBoxDefectNr_valueChanged(int arg1);
 
 private:
     Ui::MainWindow *ui;

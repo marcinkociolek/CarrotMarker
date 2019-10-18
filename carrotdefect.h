@@ -23,6 +23,24 @@ const std::string DefectNames[defectCount] = {
     "Soilure                 - "
 };
 
+const std::string DefectNamesShort[defectCount] = {
+    "LargeBlackPatches",
+    "SmallBlackPatches",
+    "BlackEnd",
+    "RotEnd",
+    "RotOutEnd",
+    "WhiteFungus",
+    "GreenHead",
+    "CrackTravsverse",
+    "CrackLongitudial",
+    "Curvature",
+    "Split",
+    "OtherShapeDeformation",
+    "BiteInsect",
+    "BiteAnimal",
+    "Soilure"
+};
+
 class CarrotDefect
 {
 public:

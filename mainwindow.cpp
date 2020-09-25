@@ -33,6 +33,7 @@ using namespace boost;
 using namespace std;
 using namespace boost::filesystem;
 using namespace cv;
+/*
 //------------------------------------------------------------------------------------------------------------------------------
 string MatPropetiesAsText(Mat Im)
 {
@@ -102,7 +103,7 @@ string TiffFilePropetiesAsText(string FileName)
     return Out;
 }
 //------------------------------------------------------------------------------------------------------------------------------
-
+*/
 bool GetTiffProperties(string FileName, float &xRes, float &yRes)
 {
     //float xRes,yRes;

@@ -39,7 +39,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>.+.JPG</string>
+      <string>.+.bmp</string>
      </property>
     </widget>
     <widget class="QListWidget" name="listWidgetImageFiles">
@@ -249,7 +249,7 @@
       <string>Show Tiff Info</string>
      </property>
      <property name="checked">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QCheckBox" name="checkBoxShowMatInfo">
